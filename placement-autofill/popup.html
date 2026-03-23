@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Placement AutoFill</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+    :root {
+      --bg: #0f0f13;
+      --surface: #1a1a24;
+      --surface2: #22222f;
+      --border: #2e2e3f;
+      --accent: #6c63ff;
+      --accent2: #ff6584;
+      --text: #e8e8f0;
+      --muted: #7a7a9a;
+      --success: #43e97b;
+      --radius: 10px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 380px;
+      min-height: 520px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+    }
+
+    /* HEADER */
+    .header {
+      background: linear-gradient(135deg, #1a1a30 0%, #16162a 100%);
+      padding: 16px 18px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header-left { display: flex; align-items: center; gap: 10px; }
+    .logo {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    .header-title { font-size: 15px; font-weight: 700; letter-spacing: -0.3px; }
+    .header-sub { font-size: 11px; color: var(--muted); }
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--muted);
+      box-shadow: 0 0 0 3px rgba(122,122,154,0.15);
+      transition: all 0.3s;
+    }
+    .status-dot.active {
+      background: var(--success);
+      box-shadow: 0 0 0 3px rgba(67,233,123,0.2);
+    }
+
+    /* TABS */
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .tab {
+      flex: 1; padding: 10px 8px;
+      text-align: center; cursor: pointer;
+      font-size: 12px; font-weight: 500;
+      color: var(--muted);
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab:hover:not(.active) { color: var(--text); background: var(--surface2); }
+
+    /* PANELS */
+    .panel { display: none; padding: 16px 18px; }
+    .panel.active { display: block; }
+
+    /* FORM FIELDS */
+    .field-group { margin-bottom: 14px; }
+    .field-label {
+      display: block; font-size: 11px; font-weight: 600;
+      color: var(--muted); text-transform: uppercase;
+      letter-spacing: 0.5px; margin-bottom: 5px;
+    }
+    .field-input {
+      width: 100%; padding: 8px 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text); font-family: inherit;
+      font-size: 13px; outline: none;
+      transition: border-color 0.2s;
+    }
+    .field-input:focus { border-color: var(--accent); }
+    .field-input::placeholder { color: var(--muted); }
+    select.field-input { cursor: pointer; }
+
+    .section-title {
+      font-size: 11px; font-weight: 700;
+      color: var(--accent); text-transform: uppercase;
+      letter-spacing: 1px; margin: 18px 0 10px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .section-title::after {
+      content: ''; flex: 1; height: 1px;
+      background: linear-gradient(to right, var(--border), transparent);
+    }
+    .section-title:first-child { margin-top: 0; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    /* BUTTONS */
+    .btn {
+      width: 100%; padding: 10px;
+      border: none; border-radius: var(--radius);
+      font-family: inherit; font-size: 13px;
+      font-weight: 600; cursor: pointer;
+      transition: all 0.2s; letter-spacing: 0.2px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      color: white;
+    }
+    .btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-secondary {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-danger {
+      background: transparent;
+      color: var(--accent2);
+      border: 1px solid var(--accent2);
+      opacity: 0.8;
+    }
+    .btn-danger:hover { opacity: 1; background: rgba(255,101,132,0.1); }
+    .btn-row { display: flex; gap: 8px; margin-top: 14px; }
+    .btn-row .btn { flex: 1; }
+
+    /* AUTOFILL PANEL */
+    .autofill-hero {
+      background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(255,101,132,0.08));
+      border: 1px solid rgba(108,99,255,0.2);
+      border-radius: var(--radius);
+      padding: 16px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .autofill-hero .icon { font-size: 28px; margin-bottom: 8px; }
+    .autofill-hero h3 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+    .autofill-hero p { color: var(--muted); font-size: 12px; line-height: 1.5; }
+
+    .fill-btn {
+      width: 100%; padding: 13px;
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      border: none; border-radius: var(--radius);
+      color: white; font-family: inherit;
+      font-size: 14px; font-weight: 700;
+      cursor: pointer; letter-spacing: 0.3px;
+      transition: all 0.2s;
+      display: flex; align-items: center;
+      justify-content: center; gap: 8px;
+    }
+    .fill-btn:hover { filter: brightness(1.12); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(108,99,255,0.35); }
+    .fill-btn:active { transform: translateY(0); }
+    .fill-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    /* RESULT */
+    .result {
+      margin-top: 12px; padding: 10px 12px;
+      border-radius: var(--radius);
+      font-size: 12px; font-weight: 500;
+      display: none; align-items: center; gap: 8px;
+    }
+    .result.success { background: rgba(67,233,123,0.1); border: 1px solid rgba(67,233,123,0.25); color: var(--success); display: flex; }
+    .result.error { background: rgba(255,101,132,0.1); border: 1px solid rgba(255,101,132,0.25); color: var(--accent2); display: flex; }
+    .result.info { background: rgba(108,99,255,0.1); border: 1px solid rgba(108,99,255,0.25); color: #a89cff; display: flex; }
+
+    /* KEYWORD TAGS */
+    .keyword-list {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      margin-top: 6px;
+    }
+    .keyword-tag {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 3px 9px;
+      font-size: 11px; color: var(--muted);
+      display: flex; align-items: center; gap: 4px;
+    }
+    .keyword-tag .remove {
+      cursor: pointer; color: var(--accent2);
+      font-size: 13px; line-height: 1;
+    }
+    .keyword-tag .remove:hover { color: white; }
+    .keyword-add-row { display: flex; gap: 6px; margin-top: 8px; }
+    .keyword-add-row input {
+      flex: 1; padding: 6px 10px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius); color: var(--text);
+      font-family: inherit; font-size: 12px; outline: none;
+    }
+    .keyword-add-row input:focus { border-color: var(--accent); }
+    .keyword-add-row button {
+      padding: 6px 12px; border-radius: var(--radius);
+      background: var(--accent); border: none;
+      color: white; font-family: inherit;
+      font-size: 12px; cursor: pointer;
+    }
+
+    /* FOOTER */
+    .footer {
+      padding: 10px 18px;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center;
+      justify-content: space-between;
+    }
+    .footer-text { font-size: 11px; color: var(--muted); }
+    .save-indicator { font-size: 11px; color: var(--success); display: none; }
+    .save-indicator.show { display: block; }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .panel { max-height: 400px; overflow-y: auto; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="header-left">
+      <div class="logo">🎓</div>
+      <div>
+        <div class="header-title">Placement AutoFill</div>
+        <div class="header-sub">Google Forms Assistant</div>
+      </div>
+    </div>
+    <div class="status-dot" id="statusDot" title="Not on a Google Form"></div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="autofill">⚡ AutoFill</div>
+    <div class="tab" data-tab="profile">👤 Profile</div>
+    <div class="tab" data-tab="settings">⚙️ Settings</div>
+  </div>
+
+  <!-- AUTOFILL TAB -->
+  <div class="panel active" id="tab-autofill">
+    <div class="autofill-hero">
+      <div class="icon">🤖</div>
+      <h3>Smart Form Filling</h3>
+      <p>Detects form fields and fills them automatically using your saved profile data.</p>
+    </div>
+
+    <button class="fill-btn" id="fillBtn">
+      <span>⚡</span> Fill This Form
+    </button>
+
+    <div class="result" id="fillResult"></div>
+
+    <div style="margin-top: 16px;">
+      <div class="section-title">Last Session</div>
+      <div id="lastSession" style="color: var(--muted); font-size: 12px; padding: 8px 0;">
+        No forms filled yet in this session.
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE TAB -->
+  <div class="panel" id="tab-profile">
+    <div class="section-title">Personal Info</div>
+    <div class="field-group">
+      <label class="field-label">Full Name</label>
+      <input class="field-input" id="fullName" type="text" placeholder="e.g. Rahul Sharma" />
+    </div>
+    <div class="two-col">
+      <div class="field-group">
+        <label class="field-label">Roll Number</label>
+        <input class="field-input" id="rollNumber" type="text" placeholder="e.g. 21CS001" />
+      </div>
+      <div class="field-group">
+        <label class="field-label">Admission No.</label>
+        <input class="field-input" id="admissionNumber" type="text" placeholder="e.g. ADM2021001" />
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="field-group">
+        <label class="field-label">Phone</label>
+        <input class="field-input" id="phone" type="tel" placeholder="10-digit number" />
+      </div>
+      <div class="field-group">
+        <label class="field-label">Aadhar Number</label>
+        <input class="field-input" id="aadhar" type="text" placeholder="12-digit Aadhar no." />
+      </div>
+    </div>
+
+    <div class="section-title">Academic Info</div>
+    <div class="field-group">
+      <label class="field-label">College / University</label>
+      <input class="field-input" id="collegeName" type="text" placeholder="e.g. AKTU, IIT Delhi" />
+    </div>
+    <div class="two-col">
+      <div class="field-group">
+        <label class="field-label">Branch / Department</label>
+        <input class="field-input" id="branch" type="text" placeholder="e.g. CSE, ECE" />
+      </div>
+      <div class="field-group">
+        <label class="field-label">Year / Semester</label>
+        <input class="field-input" id="yearSem" type="text" placeholder="e.g. Final Year" />
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="field-group">
+        <label class="field-label">CGPA / %</label>
+        <input class="field-input" id="cgpa" type="text" placeholder="e.g. 8.5 or 85%" />
+      </div>
+      <div class="field-group">
+        <label class="field-label">Passing Year</label>
+        <input class="field-input" id="passingYear" type="text" placeholder="e.g. 2025" />
+      </div>
+    </div>
+
+    <div class="section-title">10th Details</div>
+    <div class="two-col">
+      <div class="field-group">
+        <label class="field-label">10th % / Marks</label>
+        <input class="field-input" id="tenth_percent" type="text" placeholder="e.g. 87.4%" />
+      </div>
+      <div class="field-group">
+        <label class="field-label">10th Passing Year</label>
+        <input class="field-input" id="tenth_year" type="text" placeholder="e.g. 2019" />
+      </div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">10th School Name</label>
+      <input class="field-input" id="tenth_school" type="text" placeholder="e.g. St. Mary's High School" />
+    </div>
+    <div class="two-col">
+      <div class="field-group">
+        <label class="field-label">10th Board</label>
+        <input class="field-input" id="tenth_board" type="text" placeholder="e.g. CBSE, UP Board" />
+      </div>
+      <div class="field-group">
+        <label class="field-label">10th Roll No.</label>
+        <input class="field-input" id="tenth_rollno" type="text" placeholder="Board roll no." />
+      </div>
+    </div>
+
+    <div class="section-title">12th Details</div>
+    <div class="two-col">
+      <div class="field-group">
+        <label class="field-label">12th % / Marks</label>
+        <input class="field-input" id="twelfth_percent" type="text" placeholder="e.g. 82.0%" />
+      </div>
+      <div class="field-group">
+        <label class="field-label">12th Passing Year</label>
+        <input class="field-input" id="twelfth_year" type="text" placeholder="e.g. 2021" />
+      </div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">12th School / College Name</label>
+      <input class="field-input" id="twelfth_school" type="text" placeholder="e.g. Govt. Inter College" />
+    </div>
+    <div class="two-col">
+      <div class="field-group">
+        <label class="field-label">12th Board</label>
+        <input class="field-input" id="twelfth_board" type="text" placeholder="e.g. CBSE, ISC" />
+      </div>
+      <div class="field-group">
+        <label class="field-label">12th Roll No.</label>
+        <input class="field-input" id="twelfth_rollno" type="text" placeholder="Board roll no." />
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="field-group">
+        <label class="field-label">12th Stream</label>
+        <input class="field-input" id="twelfth_stream" type="text" placeholder="e.g. PCM, PCB, Commerce" />
+      </div>
+      <div class="field-group">
+        <label class="field-label">JEE / Entrance Score</label>
+        <input class="field-input" id="entrance_score" type="text" placeholder="e.g. JEE 95 percentile" />
+      </div>
+    </div>
+
+    <div class="section-title">Address & Others</div>
+    <div class="field-group">
+      <label class="field-label">Full Address</label>
+      <input class="field-input" id="address" type="text" placeholder="Street, City, State, PIN" />
+    </div>
+    <div class="two-col">
+      <div class="field-group">
+        <label class="field-label">City</label>
+        <input class="field-input" id="city" type="text" placeholder="e.g. Lucknow" />
+      </div>
+      <div class="field-group">
+        <label class="field-label">State</label>
+        <input class="field-input" id="state" type="text" placeholder="e.g. Uttar Pradesh" />
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="field-group">
+        <label class="field-label">PIN Code</label>
+        <input class="field-input" id="pincode" type="text" placeholder="6-digit PIN" />
+      </div>
+      <div class="field-group">
+        <label class="field-label">Nationality</label>
+        <input class="field-input" id="nationality" type="text" placeholder="e.g. Indian" />
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="field-group">
+        <label class="field-label">Date of Birth</label>
+        <input class="field-input" id="dob" type="text" placeholder="DD/MM/YYYY" />
+      </div>
+      <div class="field-group">
+        <label class="field-label">Gender</label>
+        <select class="field-input" id="gender">
+          <option value="">-- Select --</option>
+          <option>Male</option>
+          <option>Female</option>
+          <option>Other</option>
+          <option>Prefer not to say</option>
+        </select>
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="field-group">
+        <label class="field-label">Category</label>
+        <select class="field-input" id="category">
+          <option value="">-- Select --</option>
+          <option>General</option>
+          <option>OBC</option>
+          <option>SC</option>
+          <option>ST</option>
+          <option>EWS</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Father's Name</label>
+        <input class="field-input" id="fatherName" type="text" placeholder="Father's full name" />
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="field-group">
+        <label class="field-label">Mother's Name</label>
+        <input class="field-input" id="motherName" type="text" placeholder="Mother's full name" />
+      </div>
+      <div class="field-group">
+        <label class="field-label">Alternate Phone</label>
+        <input class="field-input" id="altPhone" type="tel" placeholder="Parent/alternate no." />
+      </div>
+    </div>
+
+    <div class="section-title">Online Profiles</div>
+    <div class="two-col">
+      <div class="field-group">
+        <label class="field-label">College Email</label>
+        <input class="field-input" id="email" type="email" placeholder="college email" />
+      </div>
+      <div class="field-group">
+        <label class="field-label">Personal Email</label>
+        <input class="field-input" id="personalEmail" type="email" placeholder="gmail/personal email" />
+      </div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">LinkedIn Profile URL</label>
+      <input class="field-input" id="linkedin" type="url" placeholder="https://linkedin.com/in/..." />
+    </div>
+    <div class="field-group">
+      <label class="field-label">GitHub Profile URL</label>
+      <input class="field-input" id="github" type="url" placeholder="https://github.com/..." />
+    </div>
+    <div class="two-col">
+      <div class="field-group">
+        <label class="field-label">LeetCode Profile</label>
+        <input class="field-input" id="leetcode" type="url" placeholder="https://leetcode.com/u/..." />
+      </div>
+      <div class="field-group">
+        <label class="field-label">Portfolio / Website</label>
+        <input class="field-input" id="portfolio" type="url" placeholder="https://yoursite.com" />
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="field-group">
+        <label class="field-label">Hackerrank</label>
+        <input class="field-input" id="hackerrank" type="url" placeholder="https://hackerrank.com/..." />
+      </div>
+      <div class="field-group">
+        <label class="field-label">Codeforces</label>
+        <input class="field-input" id="codeforces" type="url" placeholder="https://codeforces.com/..." />
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" id="saveBtn">💾 Save Profile</button>
+      <button class="btn btn-danger" id="clearBtn">Clear All</button>
+    </div>
+  </div>
+
+  <!-- SETTINGS TAB -->
+  <div class="panel" id="tab-settings">
+    <div class="section-title">Matching Settings</div>
+    <div class="field-group">
+      <label class="field-label">Match Sensitivity</label>
+      <select class="field-input" id="sensitivity">
+        <option value="loose">Loose (recommended)</option>
+        <option value="strict">Strict</option>
+      </select>
+    </div>
+
+    <div class="section-title">Custom Keywords</div>
+    <p style="color: var(--muted); font-size: 12px; margin-bottom: 8px;">
+      Add custom keywords that map to your profile fields. Useful for non-standard form labels.
+    </p>
+
+    <div id="customKeywordsContainer">
+      <!-- Dynamic keyword entries will go here -->
+    </div>
+
+    <div class="keyword-add-row" style="margin-top: 12px;">
+      <input type="text" id="newKeywordLabel" placeholder="Form label (e.g. Reg. No.)" />
+      <select class="field-input" id="newKeywordField" style="flex:1; padding: 6px 8px;">
+        <option value="">Maps to...</option>
+        <optgroup label="Personal">
+          <option value="fullName">Full Name</option>
+          <option value="rollNumber">Roll Number</option>
+          <option value="admissionNumber">Admission No.</option>
+          <option value="phone">Phone</option>
+          <option value="altPhone">Alternate Phone</option>
+          <option value="aadhar">Aadhar Number</option>
+          <option value="dob">Date of Birth</option>
+          <option value="gender">Gender</option>
+          <option value="category">Category</option>
+          <option value="fatherName">Father's Name</option>
+          <option value="motherName">Mother's Name</option>
+          <option value="nationality">Nationality</option>
+        </optgroup>
+        <optgroup label="Academic">
+          <option value="collegeName">College Name</option>
+          <option value="branch">Branch</option>
+          <option value="yearSem">Year/Sem</option>
+          <option value="cgpa">CGPA</option>
+          <option value="passingYear">Passing Year</option>
+        </optgroup>
+        <optgroup label="10th">
+          <option value="tenth_percent">10th Percentage</option>
+          <option value="tenth_year">10th Passing Year</option>
+          <option value="tenth_school">10th School</option>
+          <option value="tenth_board">10th Board</option>
+          <option value="tenth_rollno">10th Roll No.</option>
+        </optgroup>
+        <optgroup label="12th">
+          <option value="twelfth_percent">12th Percentage</option>
+          <option value="twelfth_year">12th Passing Year</option>
+          <option value="twelfth_school">12th School</option>
+          <option value="twelfth_board">12th Board</option>
+          <option value="twelfth_rollno">12th Roll No.</option>
+          <option value="twelfth_stream">12th Stream</option>
+          <option value="entrance_score">Entrance Score</option>
+        </optgroup>
+        <optgroup label="Address">
+          <option value="address">Address</option>
+          <option value="city">City</option>
+          <option value="state">State</option>
+          <option value="pincode">PIN Code</option>
+        </optgroup>
+        <optgroup label="Online Profiles">
+          <option value="email">College Email</option>
+          <option value="personalEmail">Personal Email</option>
+          <option value="linkedin">LinkedIn</option>
+          <option value="github">GitHub</option>
+          <option value="leetcode">LeetCode</option>
+          <option value="portfolio">Portfolio</option>
+          <option value="hackerrank">HackerRank</option>
+          <option value="codeforces">Codeforces</option>
+        </optgroup>
+      </select>
+      <button id="addKeywordBtn">Add</button>
+    </div>
+
+    <div class="section-title" style="margin-top: 20px;">About</div>
+    <div style="color: var(--muted); font-size: 12px; line-height: 1.7;">
+      <div>📌 Works on <strong style="color:var(--text)">docs.google.com/forms</strong></div>
+      <div>🔒 Data stored <strong style="color:var(--text)">locally</strong> in your browser</div>
+      <div>🆓 Free, no account needed</div>
+      <div style="margin-top: 8px;">v1.0.0 — Placement AutoFill</div>
+      <div style="margin-top: 6px;">💻 Made by <strong style="color:var(--accent)">Ashesh</strong></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-text" id="footerText">Open a Google Form to get started</div>
+    <div class="save-indicator" id="saveIndicator">✓ Saved!</div>
+  </div>
+
+  <script src="src/popup.js"></script>
+</body>
+</html>
