@@ -79,3 +79,4 @@ Map the label to the correct profile field.
 ---
 
 Made with ❤️ for students tired of filling the same form 70 times.
+Ashesh Singh
