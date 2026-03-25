@@ -6,12 +6,11 @@ Auto-fill your placement-related Google Forms with one click!
 
 ## 📦 Installation (Load Unpacked)
 
-1. **Download & Extract** the ZIP file to a folder on your computer
-2. Open **Google Chrome** and go to: `chrome://extensions/`
-3. Enable **Developer Mode** (toggle in top-right corner)
-4. Click **"Load unpacked"**
-5. Select the extracted `placement-autofill` folder
-6. The extension icon (⚡) will appear in your Chrome toolbar
+1. Open **Google Chrome** and go to: `chrome://extensions/`
+2. Enable **Developer Mode** (toggle in top-right corner)
+3. Click **"Load unpacked"**
+4. Select the  `placement-autofill` folder
+5. The extension icon (⚡) will appear in your Chrome toolbar
 
 ---
 
